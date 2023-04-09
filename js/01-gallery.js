@@ -31,41 +31,36 @@ galleryEl.innerHTML = addElementMarkup;
 
 // Додає слухача кліку галераї
 
-galleryEl.addEventListener('click', onImgClick);
+const instance = basicLightbox.create(`<img src="" width="800" height="600">`, {
+  onShow: instance => {
+    galleryEl.addEventListener('keydown', onEscKeyPress);
+    console.log('open');
+  },
+  onClose: instance => {
+    galleryEl.removeEventListener('keydown', onEscKeyPress);
+    console.log('close');
+  },
+});
 
-function onImgClick(event) {
-  //   Блокує перехід за замовчуванням при кліці на посилання
-  blockStandartAction(event);
-  // Перевіряє клік на картинку
-  if (event.target.nodeName !== 'IMG') {
-    return;
+const clickOnImage = evt => {
+  evt.preventDefault();
+  const sorceEvent = evt.target.dataset.source;
+  if (sorceEvent) {
+    instance.element().querySelector('img').src = sorceEvent;
+    instance.show();
   }
-  // Відкриває модальне вікно
-  openModal(event);
-  // Закриває модальне вікно клавіщею Escape
-  closeModalOnEsc(event);
-}
+  return;
+};
 
-function blockStandartAction(event) {
-  event.preventDefault();
-}
+const onEscKeyPress = evt => {
+  console.log(evt);
+  const ESC_KEY_CODE = 'Escape';
+  const IsEscKeY = evt.code === ESC_KEY_CODE;
 
-function openModal(event) {
-  const instance = basicLightbox.create(
-    `<img src="${event.target.dataset.source}" width = '800' height = '600'/>`
-  );
-  instance.show();
-}
+  if (IsEscKeY) {
+    instance.close();
+  }
+};
 
-function closeModalOnEsc(event) {
-  galleryEl.addEventListener(
-    'keydown',
-    event => {
-      if (event.code === 'Escape') {
-        instance.close();
-      }
-    },
-    { once: true }
-  );
-}
+galleryEl.addEventListener('click', clickOnImage);
 // console.log(galleryItems);
